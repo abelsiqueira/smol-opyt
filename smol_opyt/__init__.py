@@ -1,7 +1,6 @@
 """Documentation about smol_opyt"""
 import logging
 
-
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 __author__ = "Abel Soares Siqueira"

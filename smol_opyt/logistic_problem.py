@@ -1,16 +1,17 @@
 from math import log
 import numpy as np
-from numpy import linalg as LA
+from numpy import linalg as la
+
 
 class LogisticProblem:
     """Class for the logistic regression method for classification."""
-
     def __init__(self, feat_mtx, y):
-        """Create a Logistic Problem with matrix `feat_mtx` n by p and vector `y` of 0s and 1s with size n. A bias is added to the model as the first variable."""
+        """Create a Logistic Problem with matrix `feat_mtx` n by p and vector `y` of 0s and 1s with size n.
+        A bias is added to the model as the first variable."""
         self._feat_mtx = feat_mtx
         self._y = y
-        (n, p) = feat_mtx.shape
-        self._beta = np.zeros(p + 1)
+        p = feat_mtx.shape[1]
+        self.beta = np.zeros(p + 1)
 
     def sigmoid(self, v):
         """Compute sigmoid(v) = 1 / (1 + exp(-v)"""
@@ -20,7 +21,7 @@ class LogisticProblem:
         if feat_mtx is None:
             feat_mtx = self._feat_mtx
         if beta is None:
-            beta = self._beta
+            beta = self.beta
         return self.sigmoid(beta[0] + np.dot(feat_mtx, beta[1:]))
 
     def cross_entropy(self, yhat):
@@ -30,7 +31,8 @@ class LogisticProblem:
         n = len(self._y)
         c = 0.0
         for i in range(0, n):
-            c += self._y[i] * log(yhat[i]) + (1 - self._y[i]) * log(1 - yhat[i])
+            c += self._y[i] * log(
+                yhat[i]) + (1 - self._y[i]) * log(1 - yhat[i])
 
         return c
 
@@ -40,33 +42,33 @@ class LogisticProblem:
             sum (y[i] - yhat) * x_i
         """
         n = len(self._y)
-        p = len(self._beta)
+        p = len(self.beta)
         g = np.zeros(p)
         for i in range(0, n):
-            g = g + (self._y[i] - yhat[i]) * np.array([1.0, *self._feat_mtx[i,:]])
+            g = g + (self._y[i] - yhat[i]) * np.array(
+                [1.0, *self._feat_mtx[i, :]])
 
         return g
 
     def solve(self):
         """Solve the logistic regression problem"""
         max_iter = 1000
-        iter = 0
+        iter_count = 0
         yhat = self.predict()
-        L = self.cross_entropy(yhat)
-        gradL = self.cross_entropy_gradient(yhat)
-        eta = 0.01
-        while LA.norm(gradL) > 1e-6 and iter < max_iter:
+        loss = self.cross_entropy(yhat)
+        gradloss = self.cross_entropy_gradient(yhat)
+        while la.norm(gradloss) > 1e-6 and iter_count < max_iter:
             alpha = 1.0
-            slope = LA.norm(gradL)**2
-            beta_new = self._beta + alpha * gradL
+            slope = la.norm(gradloss)**2
+            beta_new = self.beta + alpha * gradloss
             yhat = self.predict(beta=beta_new)
-            L_new = self.cross_entropy(yhat)
-            while L_new < L + 1e-4 * alpha * slope:
+            loss_new = self.cross_entropy(yhat)
+            while loss_new < loss + 1e-4 * alpha * slope:
                 alpha = alpha / 2
-                beta_new = self._beta + alpha * gradL
+                beta_new = self.beta + alpha * gradloss
                 yhat = self.predict(beta=beta_new)
-                L_new = self.cross_entropy(yhat)
-            self._beta = beta_new
-            L = L_new
-            gradL = self.cross_entropy_gradient(yhat)
-            iter += 1
+                loss_new = self.cross_entropy(yhat)
+            self.beta = beta_new
+            loss = loss_new
+            gradloss = self.cross_entropy_gradient(yhat)
+            iter_count += 1
