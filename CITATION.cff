@@ -9,6 +9,10 @@ cff-version: 1.2.0
 keywords:
   - smol
   - optimization
+identifiers:
+  - description: DOI for all versions of the software.
+    type: doi
+    value: 10.5281/zenodo.5567015
 license: Apache-2.0
 message: 'If you use this software, please cite it, but also why?'
 repository-code: 'https://github.com/abelsiqueira/smol-opyt'
